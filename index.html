@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#191d18">
+<title>ORBITAL — 핀볼</title>
+<style>
+:root{color-scheme:dark;--ink:#191d18;--panel:#22281e;--line:#434a3a;--paper:#f5efdb;--muted:#b8bfaa;--lime:#dcf679;--orange:#ff805c}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% 0,#363d26,transparent 52%),var(--ink);color:var(--paper);font-family:system-ui,sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer;color:inherit;touch-action:none}
+button:focus-visible{outline:3px solid var(--lime);outline-offset:4px}
+header{width:min(100% - 40px,1000px);height:62px;margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font:700 13px ui-monospace,monospace;letter-spacing:.16em}
+.brand{display:flex;align-items:center;gap:10px}.brand b{font-size:21px;color:var(--lime)}
+#sound{border:1px solid var(--line);border-radius:30px;background:var(--panel);padding:7px 13px;letter-spacing:0}
+main{width:min(100% - 40px,848px);margin:29px auto 35px;display:grid;grid-template-columns: minmax(0,470px) minmax(215px,1fr);align-items:start;gap:46px}
+.cabinet{border:1px solid #757b56;border-radius:36px;padding:9px;background:linear-gradient(150deg,#424a2b,#23281a 45%,#333b24);box-shadow:0 7px 0 #11150f,0 23px 53px #0b0e0a99;min-width:0}
+.screen{position:relative;border-radius:28px;overflow:hidden;background:#252c1d}
+canvas{display:block;width:100%;height:auto;aspect-ratio:480/650;touch-action:none}
+.cover{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:#151a1260}
+.cover[hidden]{display:none}
+.modal{text-align:center;width:min(100%,274px);background:#1c2119f7;border:1px solid #697545;box-shadow:0 10px 45px #0d100acd;padding:24px 19px;border-radius:18px}
+.modal h2{margin:0;font-size:27px}.modal p{margin:10px 0 20px;color:var(--muted);font-size:14px;line-height:1.55}
+.primary{border:0;border-radius:8px;padding:12px 19px;background:var(--lime);color:#252b17;font-weight:850}
+.primary:hover{background:#eeffa6}
+.touch{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:7px;padding:9px 3px 2px}
+.touch button{background:#282e21;border:1px solid #666f4b;border-radius:11px;padding:9px 2px;font-size:13px;font-weight:750;user-select:none;-webkit-user-select:none}
+.touch button[data-down=true]{background:var(--lime);color:var(--ink)}#launch{color:var(--lime)}#launch[data-down=true]{color:var(--ink)}
+aside{padding-top:18px;min-width:0}h1{margin:0;font-size:clamp(43px,6.3vw,74px);font-weight:950;letter-spacing:-.085em;line-height:.94}
+.sub{color:var(--lime);font-size:15px;font-weight:750;margin:14px 0 27px}
+.stats{display:grid;gap:8px}.score{padding:15px 17px;background:#282f21;border:1px solid var(--line);border-radius:12px}
+.stat-label{color:var(--muted);display:block;font-size:12px;font-weight:700;margin-bottom:5px}
+#score{color:var(--lime);font:750 clamp(24px,4vw,43px) ui-monospace,monospace;letter-spacing:-.065em;overflow-wrap:anywhere}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat-row .score{padding:12px 14px}
+#best,#balls{font:750 18px ui-monospace,monospace}
+#mission{margin:14px 0 21px;color:var(--muted);font-size:13px;line-height:1.45;min-height:38px}
+.help{border-top:1px solid var(--line);padding-top:13px;display:grid;gap:10px;font-size:13px;color:var(--muted)}
+.help div{display:flex;justify-content:space-between;align-items:center;gap:9px}
+kbd{padding:3px 7px;background:#333b2b;border:1px solid #566044;border-radius:5px;color:var(--paper);font-size:11px;white-space:nowrap}
+#pause{margin-top:17px;background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px}
+@media(max-width:700px){main{width:min(100% - 22px,455px);margin-top:12px;grid-template-columns:1fr;gap:10px}header{width:calc(100% - 24px);height:44px}aside{grid-row:1;padding-top:2px;display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center}h1{font-size:32px}.sub{display:none}.stats{grid-column:1/-1;grid-template-columns:1fr 1.2fr;gap:5px}.stat-row{gap:5px}.score,.stat-row .score{padding:6px 8px}.stat-label{font-size:10px;margin-bottom:2px}#score,#best,#balls{font-size:17px}#mission{grid-column:1/-1;margin:0;min-height:0;font-size:11px}.help{display:none}#pause{grid-row:1;grid-column:2;margin:0;padding:4px 8px}.cabinet{border-radius:25px;padding:6px}.screen{border-radius:20px}}
+@media(min-width:701px) and (max-height:820px){main{grid-template-columns:minmax(0, min(455px,calc((100svh - 161px)*.738))) minmax(215px,1fr);justify-content:center}}
+</style>
+</head>
+<body>
+<header><div class="brand"><b aria-hidden="true">✦</b> ORBITAL ARCADE</div><button id="sound" aria-pressed="false">소리 켜기</button></header>
+<main>
+<section class="cabinet" aria-label="핀볼 테이블">
+  <div class="screen">
+    <canvas id="table" width="480" height="650" tabindex="-1" aria-label="오비탈 핀볼 게임판"></canvas>
+    <div class="cover" id="cover">
+      <div class="modal">
+        <h2 id="heading">발사 준비</h2>
+        <p id="message">공 3개로 최고 기록에 도전하세요.<br>세 범퍼를 모두 맞히면 1,000점!</p>
+        <button class="primary" id="start">게임 시작</button>
+      </div>
+    </div>
+  </div>
+  <div class="touch" aria-label="게임 조작">
+    <button id="left" aria-label="왼쪽 플리퍼">◀ 왼쪽</button><button id="launch">발사 ↑</button><button id="right" aria-label="오른쪽 플리퍼">오른쪽 ▶</button>
+  </div>
+</section>
+<aside>
+  <h1>ORBITAL</h1><p class="sub">오비탈 핀볼</p>
+  <div class="stats">
+    <div class="score"><span class="stat-label">점수</span><output id="score">0</output></div>
+    <div class="stat-row">
+      <div class="score"><span class="stat-label">최고 기록</span><output id="best">0</output></div>
+      <div class="score"><span class="stat-label">남은 공</span><output id="balls">● ● ●</output></div>
+    </div>
+  </div>
+  <p id="mission">궤도 보너스 · 범퍼 0 / 3</p>
+  <div class="help" aria-label="키보드 조작">
+    <div>왼쪽 / 오른쪽 플리퍼 <span><kbd>←</kbd> <kbd>→</kbd></span></div>
+    <div>누르고 놓아서 발사 <kbd>Space</kbd></div>
+    <div>일시정지 / 계속 <kbd>P</kbd></div>
+  </div>
+  <button id="pause" disabled>일시정지</button>
+</aside>
+</main>
+<script src="game.js" defer></script>
+</body>
+</html>
+
